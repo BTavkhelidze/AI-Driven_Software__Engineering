@@ -11,36 +11,44 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum CategoryName {
+  ELECTRONICS
+  CLOTHING
+  BOOKS
+}
+
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  name      String
+  createdAt DateTime  @default(now())
+  products  Product[] 
 }
 
 model Product {
-  id          String   @id @default(uuid())    // Secure, non-sequential UUID for public APIs
-  name        String   @db.VarChar(255)
-  slug        String   @unique                // Clean URL identifier (e.g., "gaming-mechanical-keyboard")
-  description String   @db.Text
-  price       Decimal  @db.Decimal(10, 2)     // Explicit financial precision mapping to MySQL DECIMAL type
-  stock       Int      @default(0)
-  imageUrl    String?  @db.VarChar(512)
-  isActive    Boolean  @default(true)         // Flag to handle clean database soft deletes
+  id          String   @id @default(uuid())
+  name        String
+  slug        String
+  price       String   
+  stock       Int
+  description String
+ 
+  isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
-  // Setting up relations to categorize products cleanly
-  categoryId  String?
-  category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  
 
-  @@index([slug]) // Performance index for quick URL-based query lookups
+  userId      String   
+  user        User     @relation(fields: [userId], references: [id])
 }
+
 
 model Category {
   id          String    @id @default(uuid())
-  name        String    @db.VarChar(100)
-  slug        String    @unique
-  products    Product[] // One-to-many relation mapping back to Products
+  name        CategoryName @unique
+  products    Product[] 
   createdAt   DateTime  @default(now())
 }

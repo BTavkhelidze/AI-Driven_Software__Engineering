@@ -7,6 +7,8 @@ export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
+    seed: 'prisma/seed.js',
+  
   },
   datasource: {
     // Prisma CLI will use this URL for db push and migrations

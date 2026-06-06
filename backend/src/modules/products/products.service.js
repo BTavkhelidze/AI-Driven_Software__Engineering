@@ -21,25 +21,40 @@ export default class ProductsService {
     return product;
   }
 
-  static async create(data) {
-    // 1. Validate incoming data
-    console.log(data,'<-- Data received for product creation');
+  static async create(data, userId) {
+   
     const validatedData = CreateProductSchema.parse(data);
-
-    // 2. Format and save to database
-    return await prisma.product.create({
-      data: {
-        ...validatedData,
-        price: validatedData.price.toString()
+ 
+  
+  return await prisma.product.create({
+  data: {
+    name: validatedData.name,
+    slug: validatedData.slug,
+    description: validatedData.description,
+    stock: validatedData.stock,
+    price: validatedData.price.toString(),
+  
+    user: {
+      connect: { id: userId }
+    },
+    // Only connect category if the name is provided
+    ...(validatedData.categoryName && {
+      category: {
+        connectOrCreate: {
+        where: { name: validatedData.categoryName },
+        create: { name: validatedData.categoryName }
       }
-    });
+      }
+    })
+  }
+});
   }
 
   static async update(id, data) {
-    // 1. Validate update data
+  
     const validatedData = UpdateProductSchema.parse(data);
 
-    // 2. Check if product exists before updating
+
     const existing = await prisma.product.findUnique({ where: { id } });
     if (!existing) {
       const error = new Error('Product not found');
@@ -47,7 +62,7 @@ export default class ProductsService {
       throw error;
     }
 
-    // 3. Prepare data for update
+   
     const updateData = { ...validatedData };
     if (updateData.price !== undefined) {
       updateData.price = updateData.price.toString();
