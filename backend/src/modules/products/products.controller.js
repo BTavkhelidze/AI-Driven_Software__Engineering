@@ -21,11 +21,16 @@ export class ProductsController {
     }
   }
 
-  static async createProduct(req, res) {
+ static async createProduct(req, res) {
     try {
-      console.log("Request Body:", req.body)
-      const newProduct = await ProductsService.create(req.body);
-      console.log("Created Product:", newProduct)
+      console.log("User ID from token:", req.user);
+      // Get the userId from the authenticated request
+      const userId = req.user.userId; 
+
+      
+      // Pass the userId to the service
+      const newProduct = await ProductsService.create(req.body, userId);
+      
       res.status(201).json({ success: true, data: newProduct });
     } catch (error) {
       console.log("Error creating product:", error);
